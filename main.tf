@@ -1,92 +1,54 @@
+# main.tf
 terraform {
   required_providers {
-    github = {
-      source  = "integrations/github"
-      version = "~> 5.0"
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 2.23.0"
     }
   }
 }
 
-provider "github" {
-  owner = "Practical-DevOps-GitHub"
-  token = var.token
+provider "docker" {}
+
+resource "docker_image" "nginx" {
+  name         = "nginx:latest"
+  keep_locally = false
 }
 
-resource "github_repository_collaborator" "a_repo_collaborator" {
-  repository = "terraform-examples"
-  username   = "softservedata"
-  permission = "admin"
+resource "docker_container" "nginx" {
+  name  = "www"
+  image = docker_image.nginx.image_id
+  ports {
+    internal = 80
+    external = 8080
+  }
+  upload {
+    file   = "/usr/share/nginx/html/index.html"
+    source = "index.html"
+  }
 }
 
-
-resource "github_branch" "develop" {
-  repository = "terraform-examples"
-  branch     = "github"
+resource "docker_image" "mariadb" {
+  name         = "mariadb:latest"
+  keep_locally = false
 }
 
-
-resource "github_branch_default" "default" {
-  repository = "terraform-examples"
-  branch     = github_branch.develop.branch
+variable "db_root_password" {
+  description = "mariadb password"
+  type        = string
+  default     = "123123"
+  sensitive   = true
 }
 
-
-variable "token" {
-  default = "abcabc"
-}
-
-
-resource "github_branch_protection" "terraform-examples" {
-  repository_id = "terraform-examples"
-  pattern       = "github"
-  required_pull_request_reviews {
-    require_code_owner_reviews      = true
-    required_approving_review_count = 0
+resource "docker_container" "mariadb" {
+  name  = "db"
+  image = docker_image.mariadb.image_id
+  env = [
+    "MARIADB_ROOT_PASSWORD=${var.db_root_password}"
+  ]
+  ports {
+    internal = 3306
+    external = 3306
   }
 
-}
-
-resource "github_branch_protection" "example2" {
-  repository_id = "terraform-examples"
-  pattern       = "develop"
-  required_pull_request_reviews {
-    required_approving_review_count = 2
-  }
-
-}
-
-resource "github_repository_file" "codeowners" {
-  repository          = "terraform-examples"
-  branch              = "main"
-  file                = ".github/CODEOWNERS"
-  content             = "* @softservedata"
-  commit_message      = "Add CODEOWNERS"
-  overwrite_on_create = true
-}
-
-resource "github_repository_deploy_key" "example_repository_deploy_key" {
-  title      = "DEPLOY_KEY"
-  repository = "terraform-examples"
-  key        = "ssh-ed25519 AAAA..."
-  read_only  = "true"
-}
-
-resource "github_repository_webhook" "foo" {
-  repository = "terraform-examples"
-  
-  configuration {
-    url          = "https://discord.com/api/webhooks/113..."
-    content_type = "json"
-    insecure_ssl = false
-  }
-
-  active = true
-
-  events = ["pull_request"]
-}
-
-resource "github_actions_secret" "example_secret" {
-  repository      = "terraform-examples"
-  secret_name     = "PAT"
-  plaintext_value = var.token
 }
