@@ -1,108 +1,82 @@
-variable "resource_group_location" {
-  type        = string
-  default     = "eastus"
-  description = "Location of the resource group."
-}
-
-variable "resource_group_name" {
+variable "project" {
+  description = "Your project name"
   type        = string
   default     = "ssrv-task1"
-  description = "Name of the resource group."
-
 }
 
-variable "resource_group_name_prefix" {
+variable "region" {
+  description = "default region to deploy infrastructure"
   type        = string
-  default     = "rg"
-  description = "Prefix of the resource group name that's combined with a random ID so name is unique in your Azure subscription."
+  default     = "europe-central2"
 }
 
-variable "computer_name" {
+variable "zone" {
   type        = string
-  default     = "dof01"
-  description = "Name of the computer."
-
+  description = "The availability zone where the instance will be deployed"
+  default     = "europe-central2-a"
 }
 
-variable "user_name" {
+variable "network_name" {
+  description = "The name of the network"
   type        = string
-  default     = "azureuser"
-  description = "Name of the user."
-
+  default     = "development"
 }
 
-variable "storage_account_type" {
-  description = "default storage account type to deploy infrastructure"
+variable "subnet_name" {
+  description = "The name of the subnetwork"
   type        = string
-  default     = "Standard_LRS"
+  default     = "development"
 }
 
-variable "azurerm_vm_size" {
-  type        = string
-  description = "The availability vm size where the instance will be deployed"
-  default     = "Standard_B1ls"
-}
-
-variable "vnet_range" {
-  type        = list(string)
-  default     = ["10.2.0.0/16"]
-  description = "Address range for deployment VNet"
-}
-variable "subnet_range" {
-  type        = list(string)
-  default     = ["10.2.0.0/24"]
-  description = "Address range for session host subnet"
-}
-
-variable "source_image_reference_publisher" {
-  type        = string
-  description = "The availability os image publisher where the instance will be deployed"
-  default     = "Canonical"
-}
-
-variable "source_image_reference_offer" {
-  type        = string
-  description = "The availability os image offer where the instance will be deployed"
-  default     = "0001-com-ubuntu-server-jammy"
-}
-
-variable "source_image_reference_sku" {
-  type        = string
-  description = "The availability os image sku where the instance will be deployed"
-  default     = "22_04-lts-gen2"
-}
-
-variable "source_image_reference_version" {
-  type        = string
-  description = "The availability os image version where the instance will be deployed"
-  default     = "latest"
-}
-
-variable "azurerm_virtual_network_name" {
-  type        = string
-  description = "Name of your virtual network "
-  default     = "myVnet"
-}
-
-variable "azurerm_subnet_name" {
-  type        = string
-  description = "Name of your subnetwork in virtual network "
-  default     = "mySubnet"
-}
-
-variable "azurerm_public_ip" {
-  type        = string
-  description = "Public ip of your virtual network "
-  default     = "myPublicIP"
-}
-
-variable "scfile" {
+variable "subnet_cidr" {
+  default = "10.0.0.0/16"
   type    = string
-  default = "apache_install.sh"
 }
 
-variable "open_ports" {
-  type        = list(any)
+variable "image_family" {
+  description = "The family of the VM image for the instance to be launched"
+  type        = string
+  default     = "ubuntu-2204-lts"
+}
+
+variable "image_project" {
+  description = "The project of the VM image for the instance to be launched"
+  type        = string
+  default     = "ubuntu-os-cloud"
+}
+
+variable "instance_name" {
+  description = "Name of the instance"
+  type        = string
+  default     = "webserver"
+}
+
+variable "network_tags" {
+  description = "A list of network tags to be applied to the instance"
+  type        = list(string)
+  default     = ["web"]
+}
+
+variable "instance_type" {
+  description = "The instance type to be used for the Compute Engine instance"
+  type        = string
+  default     = "e2-micro"
+}
+
+variable "environment" {
+  default = "dev"
+  type    = string
+}
+
+variable "allowed_ports" {
   description = "List of allowed ports"
-  default     = ["80", "443", "22"]
+  type        = list(any)
+  default     = ["80", "443", "22", "8080"]
+}
+
+variable "startup" {
+  description = "Startup script file"
+  type        = string
+  default     = "apache_install.sh"
+
 }

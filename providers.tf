@@ -1,27 +1,14 @@
 terraform {
-  required_version = ">=0.12"
-
   required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~>2.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~>3.0"
-    }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~>4.0"
-    }
-    local = {
-      source  = "hashicorp/local"
-      version = "~>2.4.0"
+    google = {
+      source  = "hashicorp/google"
+      version = "4.80.0"
     }
   }
 }
 
-provider "azurerm" {
-  skip_provider_registration = "true"
-  features {}
+provider "google" {
+  project = var.project
+  region  = var.region
+  zone    = var.zone
 }

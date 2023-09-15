@@ -1,30 +1,22 @@
-output "resource_group_name" {
-  value = azurerm_resource_group.ssrv.name
+output "instance_public_ip" {
+  value = google_compute_instance.ssrv.network_interface[0].access_config[0].nat_ip
+}
+output "instance_image_id" {
+  value = google_compute_instance.ssrv.boot_disk[0].initialize_params[0].image
 }
 
-output "azure_vm_name" {
-  value = azurerm_linux_virtual_machine.ssrv.name
+output "instance_type" {
+  value = google_compute_instance.ssrv.machine_type
 }
 
-output "azure_vm_location" {
-  value = azurerm_resource_group.ssrv.location
+output "instance_network" {
+  value = google_compute_instance.ssrv.network_interface[0].network
 }
 
-output "vm_size" {
-  value = azurerm_linux_virtual_machine.ssrv.size
+output "instance_subnet" {
+  value = google_compute_instance.ssrv.network_interface[0].subnetwork
 }
 
-output "azure_os_disk_name" {
-  value = azurerm_linux_virtual_machine.ssrv.os_disk[0].name
-}
-
-output "public_ip_address" {
-  #value = data.azurerm_public_ip.ssrv.ip_address # need terraform refresh otherwise empty
-  value = azurerm_linux_virtual_machine.ssrv.public_ip_address
-
-}
-
-output "tls_private_key" {
-  sensitive = true
-  value     = tls_private_key.rsa-4096.private_key_pem
+output "instance_zone" {
+  value = google_compute_instance.ssrv.zone
 }

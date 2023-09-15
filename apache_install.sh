@@ -1,3 +1,1 @@
-#!/bin/bash
-
-apt-get update && apt-get install -y apache2 && service apache2 start
+sudo apt-get update && sudo apt-get install -y apache2 && sudo service apache2 start
