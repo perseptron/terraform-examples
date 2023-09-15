@@ -1,77 +1,84 @@
-# Task on the topic AWS and Terraform
+# Terraform Azure task
 
-## Creating AWS resources using Terraform flat modules
+## Task description:
 
-This Terraform configuration describes an infrastructure deployment that creates various AWS resources using reusable modules. Let's break down the code section by section:
+You should develop a Terraform code in `main.tf` that implements predefined variables used to deploy infrastructure on Azure.
 
-1. **Provider Block**:
-   ```
-   provider "aws" {
-     region = var.region
-   }
-   ```
-   This block specifies the AWS provider that Terraform will use to provision resources. It indicates that Terraform should interact with the AWS services in the specified region, and the region value is read from the `var.region` variable, which should be defined in the `variables.tf` file.
+Your task is to review the variables and their descriptions, and deploy designed infrastructure using additional needed resources.
 
-2. **VPC Module**:
-   ```
-   module "vpc" {
-     source = "./modules/vpc"
-   }
-   ```
-   This block uses the `vpc` module defined in the `./modules/vpc` directory. It allows you to create a Virtual Private Cloud (VPC) with its associated resources, like subnets, route tables, and internet gateways. The `vpc` module likely exposes output variables like `vpc_id` and `environment`, which are used in other parts of the configuration.
+Terraform provider `hashicorp/azurerm`
 
-3. **Subnet Module**:
-   ```
-   module "subnet" {
-     source      = "./modules/subnet"
-     vpc_id      = module.vpc.vpc_id
-     environment = module.vpc.environment
-   }
-   ```
-   This block uses the `subnet` module defined in the `./modules/subnet` directory. The module is responsible for creating subnets within the VPC created by the previous `vpc` module. The `vpc_id` and `environment` variables are passed to the `subnet` module, likely to define the subnet's placement within the VPC and other subnet-specific configurations.
+The variables defined in the code (`variables.tf`) are as follows:
 
-4. **Security Group (SG) Module**:
-   ```
-   module "sg" {
-     source      = "./modules/sg"
-     vpc_id      = module.vpc.vpc_id
-     environment = module.vpc.environment
-   }
-   ```
-   This block uses the `sg` module defined in the `./modules/sg` directory. The module is responsible for creating security groups within the VPC created by the `vpc` module. The `vpc_id` and `environment` variables are passed to the `sg` module, likely to define the security group's rules and associations with the VPC.
-
-5. **EC2 Instance Module**:
-   ```
-   module "ec2" {
-     source                 = "./modules/ec2"
-     publicSubnetCIDR       = module.subnet.publicSubnetCIDR
-     subnet_id              = module.subnet.subnet_id
-     vpc_security_group_ids = module.sg.vpc_security_group_ids
-   }
-   ```
-   This block uses the `ec2` module defined in the `./modules/ec2` directory. The module is responsible for creating an EC2 instance within the public subnet. It requires information about the subnet and security groups created by the `subnet` and `sg` modules. The module likely defines configurations like instance type, AMI, and any other necessary settings for the EC2 instance.
-
-Overall, this Terraform configuration demonstrates how to use reusable modules to define an AWS infrastructure with a VPC, subnets, security groups, and an EC2 instance. Each module is responsible for creating specific resources, and the output variables from one module are passed as input variables to other modules to establish dependencies and relationships between the resources.
-
-## Terraform AWS Task2
-
-In order to complete this task for the first you should develop two files. <br>
-*First* one: `outputs.tf` for module *ec2* located in *"./modules/ec2"* with following *outputs*: <br>
-`ec2_ami` <br>
-`ec2_public_ip` <br>
-`ec2_type` <br>
-*Second* one: `outputs.tf` for root directory *main.tf*  with following *outputs*: <br>
-`ec2_ami` <br>
-`ec2_public_ip` <br>
-`ec2_type` <br>
-`vpc_id` <br>
-`subnet_id` <br>
-`security_group_ids` <br>
-<br>
-After compleeting previous part you should deploy your infrastructure into AWS using `terraform apply` (all created resources are in FreeTier). <br>
-Next step - run `terraform output > result` (taking into account, that your infrastructure still alive). <br>
-Finally, run `terraform destroy` and upload your `result` file to check <br>
+| **Variable**  | **Description** |
+| --- | --- |
+| `resource_group_location` | Name of your resource group location. For example value is `eastus` |
+| `resource_group_name` | Name of the resource group  |
+| `resource_group_name_prefix` | Prefix of the resource group name that's combined with a random ID so name is unique in your Azure subscription.`  |
+| `computer_name`  | Name of the computer  |
+| `user_name`  | Name of the user. The default value is `azureuser` |
+| `storage_account_type`  | Default storage account type to deploy infrastructure |
+| `azurerm_vm_size`  | The availability vm size where the instance will be deployed The default value is `Standard_B1ls`  |
+| `vnet_range`  | The CIDR block for the custom vnet. The default value is `10.2.0.0/16` |
+| `subnet_range`  | The CIDR block for the custom subnet. The default value is `10.2.0.0/24` |
+| `source_image_reference_publisher`  | The availability os image publisher where the instance will be deployed. The default value is `Canonical`  |
+| `source_image_reference_offer`  | The availability os image offer where the instance will be deployed. The default value is `0001-com-ubuntu-server-jammy`  |
+| `source_image_reference_sku`  | The availability os image sku where the instance will be deployed. The default value is `22_04-lts-gen2`  |
+| `source_image_reference_version`  | The availability os image version where the instance will be deployed. The default value is `latest`  |
+| `image_project`  | The project of the VM image for the instance to be launched. The default value is `ubuntu-os-cloud`  |
+| `azurerm_virtual_network_name`  | Name of your virtual network. For example value is `myVnet`  |
+| `azurerm_subnet_name`  | Name of your subnetwork in virtual network. For example value is `mySubnet`  |
+| `azurerm_public_ip`  | Public ip of your virtual network. For example value is `myPublicIP`  |
 
 
+> Note: You will need to provide a startup script to install an Apache2 web server.
+
+Also you should develop respective `ouputs.tf` with following information about created resources: 
 
 
+```terraform
+output "resource_group_name" {put your code here}
+
+output "azure_vm_name" {put your code here}
+
+output "azure_vm_location" {put your code here}
+
+output "vm_size" {put your code here}
+
+output "azure_os_disk_name" {put your code here}
+
+output "public_ip_address" {put your code here}
+
+output "tls_private_key" {put your code here}
+```
+
+> Note: The outputs must use `Azure Virtual machines` resouce attributes not the variables.
+
+After your code will be developed you need to make several steps to complete this task: 
+
+
+1. Install Terraform (or it could be already installed)
+
+2. Run terraform init, plan and finally apply in your directory with your terrafom files.
+
+3. Be sure, that you have properly configured Azure credentials, beacause it is required.
+
+4. After successfully completing you should run terraform output and save its result as a file `result`. 
+
+## Short overview
+
+This Terraform code defines infrastructure resources for a Virtual machines instance with a public subnet and a firewall for the instance.
+
+The provider for the code is Azure, and it takes the region information from a variable defined in a `variables.tf` file.
+
+The code defines a viertual network  resource using the `azurerm_virtual_network` block and sets its name, address_space, location and resource_group_name. 
+
+It also defines a subnet using the `azurerm_subnet` block, which has a CIDR block in address_prefixes, resource_group_name, a virtual_network_name and a name that are set from variables.
+
+Finally, an Virtual machines instance resource is created with an image found through a data source using image family and image project from variables, instance type, network, and and other variables.
+
+A startup script to install and start an Apache2 server must be provided. 
+
+A security group is defined for the instance with dynamic ingress rules for specified ports and a default egress rule allowing all traffic.
+
+Overall, this Terraform code provisions a virtual network with a subnet and a Virtual machines instance with a firewall that allows incoming traffic on specified ports.
