@@ -1,7 +1,91 @@
-ec2_ami="ami-05d34d340fb1d89e5"
-ec2_public_ip="18.185.106.96"
-ec2_region="eu-central-1"
-ec2_subnet_id="subnet-07566a680171a4378"
-ec2_type="t2.micro"
-public_subnet_AZ="eu-central-1a"
-public_vpc_id="vpc-0e35601993fb5c2fb"
+ec2_ami = "ami-0aa74281da945b6b5"
+ec2_public_ip = "3.67.169.146"
+ec2_type = "t2.micro"
+security_group_ids = {
+  "arn" = "arn:aws:ec2:eu-central-1:984422382864:security-group/sg-0d61a42cd003a88da"
+  "description" = "Managed by Terraform"
+  "egress" = toset([
+    {
+      "cidr_blocks" = tolist([
+        "0.0.0.0/0",
+      ])
+      "description" = ""
+      "from_port" = 0
+      "ipv6_cidr_blocks" = tolist([])
+      "prefix_list_ids" = tolist([])
+      "protocol" = "-1"
+      "security_groups" = toset([])
+      "self" = false
+      "to_port" = 0
+    },
+  ])
+  "id" = "sg-0d61a42cd003a88da"
+  "ingress" = toset([
+    {
+      "cidr_blocks" = tolist([
+        "0.0.0.0/0",
+      ])
+      "description" = ""
+      "from_port" = 22
+      "ipv6_cidr_blocks" = tolist([])
+      "prefix_list_ids" = tolist([])
+      "protocol" = "tcp"
+      "security_groups" = toset([])
+      "self" = false
+      "to_port" = 22
+    },
+    {
+      "cidr_blocks" = tolist([
+        "0.0.0.0/0",
+      ])
+      "description" = ""
+      "from_port" = 443
+      "ipv6_cidr_blocks" = tolist([])
+      "prefix_list_ids" = tolist([])
+      "protocol" = "tcp"
+      "security_groups" = toset([])
+      "self" = false
+      "to_port" = 443
+    },
+    {
+      "cidr_blocks" = tolist([
+        "0.0.0.0/0",
+      ])
+      "description" = ""
+      "from_port" = 8080
+      "ipv6_cidr_blocks" = tolist([])
+      "prefix_list_ids" = tolist([])
+      "protocol" = "tcp"
+      "security_groups" = toset([])
+      "self" = false
+      "to_port" = 8080
+    },
+    {
+      "cidr_blocks" = tolist([
+        "0.0.0.0/0",
+      ])
+      "description" = ""
+      "from_port" = 80
+      "ipv6_cidr_blocks" = tolist([])
+      "prefix_list_ids" = tolist([])
+      "protocol" = "tcp"
+      "security_groups" = toset([])
+      "self" = false
+      "to_port" = 80
+    },
+  ])
+  "name" = "Security Group for EC2 instances public subnets"
+  "name_prefix" = ""
+  "owner_id" = "984422382864"
+  "revoke_rules_on_delete" = false
+  "tags" = tomap({
+    "Name" = "dev-publicsubnetEC2-SG"
+  })
+  "tags_all" = tomap({
+    "Name" = "dev-publicsubnetEC2-SG"
+  })
+  "timeouts" = null /* object */
+  "vpc_id" = "vpc-0e87208e412fc3ef2"
+}
+subnet_id = "subnet-05f65da90bb8cee77"
+vpc_id = "vpc-0e87208e412fc3ef2"

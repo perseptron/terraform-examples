@@ -1,59 +1,77 @@
 # Task on the topic AWS and Terraform
 
-## Task
+## Creating AWS resources using Terraform flat modules
 
-You should develop a Terraform code in **main.tf** that implements predefined variables used to deploy infrastructure on AWS. <br>
-Your task is to review the variables and their descriptions, and deploy designed infrastructure using additional needed resources, <br>
-such as **aws_internet_gateway**, **aws_route_table**, **aws_route_table_association** and **aws_security_group**. <br>
+This Terraform configuration describes an infrastructure deployment that creates various AWS resources using reusable modules. Let's break down the code section by section:
 
-The variables defined in the code (./Source/variables.tf) are as follows:<br>
+1. **Provider Block**:
+   ```
+   provider "aws" {
+     region = var.region
+   }
+   ```
+   This block specifies the AWS provider that Terraform will use to provision resources. It indicates that Terraform should interact with the AWS services in the specified region, and the region value is read from the `var.region` variable, which should be defined in the `variables.tf` file.
 
-| **Variable**  | **Description** |
-| --- | --- |
-| **region** | The AWS region where the infrastructure will be deployed. The default value is "eu-central-1"  |
-| **availability_zone**  | The availability zone where the infrastructure will be deployed. The default value is "eu-central-1a"  |
-| **cidr**  | The CIDR block for the VPC. The default value is "10.0.0.0/16" |
-| **publicCIDR**  | A list of CIDR blocks for the public subnets. The default value is ["10.0.1.0/24"].  |
-| **environment**  | The environment where the infrastructure will be deployed. The default value is "dev"  |
-| **instance_type**  | The instance type to be used for the EC2 instance. The default value is "t2.micro"  |
-| **instance_AMI**  | The AMI ID of the instance to be launched. The default value is "ami-05d34d340fb1d89e5"  |
-| **allowed_ports**  | A list of allowed ports. The default value is ["80", "443", "22", "8080"]  |
+2. **VPC Module**:
+   ```
+   module "vpc" {
+     source = "./modules/vpc"
+   }
+   ```
+   This block uses the `vpc` module defined in the `./modules/vpc` directory. It allows you to create a Virtual Private Cloud (VPC) with its associated resources, like subnets, route tables, and internet gateways. The `vpc` module likely exposes output variables like `vpc_id` and `environment`, which are used in other parts of the configuration.
 
-Also you should develop respective **ouputs.tf** with following information about created resources: <br>
+3. **Subnet Module**:
+   ```
+   module "subnet" {
+     source      = "./modules/subnet"
+     vpc_id      = module.vpc.vpc_id
+     environment = module.vpc.environment
+   }
+   ```
+   This block uses the `subnet` module defined in the `./modules/subnet` directory. The module is responsible for creating subnets within the VPC created by the previous `vpc` module. The `vpc_id` and `environment` variables are passed to the `subnet` module, likely to define the subnet's placement within the VPC and other subnet-specific configurations.
 
-**output "ec2_public_ip" {put your code here}**<br>
-**output "ec2_ami" {put your code here}**<br>
-**output "ec2_type" {put your code here}**<br>
-**output "public_vpc_id" {put your code here}**<br>
-**output "ec2_subnet_id" {put your code here}**<br>
-**output "public_subnet_AZ" {put your code here}**<br>
-**output "ec2_region" {put your code here}**<br>
+4. **Security Group (SG) Module**:
+   ```
+   module "sg" {
+     source      = "./modules/sg"
+     vpc_id      = module.vpc.vpc_id
+     environment = module.vpc.environment
+   }
+   ```
+   This block uses the `sg` module defined in the `./modules/sg` directory. The module is responsible for creating security groups within the VPC created by the `vpc` module. The `vpc_id` and `environment` variables are passed to the `sg` module, likely to define the security group's rules and associations with the VPC.
 
-After your code will be developed you need to make several steps to complete this task: <br>
+5. **EC2 Instance Module**:
+   ```
+   module "ec2" {
+     source                 = "./modules/ec2"
+     publicSubnetCIDR       = module.subnet.publicSubnetCIDR
+     subnet_id              = module.subnet.subnet_id
+     vpc_security_group_ids = module.sg.vpc_security_group_ids
+   }
+   ```
+   This block uses the `ec2` module defined in the `./modules/ec2` directory. The module is responsible for creating an EC2 instance within the public subnet. It requires information about the subnet and security groups created by the `subnet` and `sg` modules. The module likely defines configurations like instance type, AMI, and any other necessary settings for the EC2 instance.
 
-1. Install Terraform (or it could be already installed)<br>
-2. Run terraform init, plan and finally apply in your directory with your terrafom files.<br>
-3. Be sure, that you have properly configured AWS credentials, beacause it is required.<br>
-4. After successfully completing you should run terraform output and save its result as a file **result**. <br>
+Overall, this Terraform configuration demonstrates how to use reusable modules to define an AWS infrastructure with a VPC, subnets, security groups, and an EC2 instance. Each module is responsible for creating specific resources, and the output variables from one module are passed as input variables to other modules to establish dependencies and relationships between the resources.
+
+## Terraform AWS Task2
+
+In order to complete this task for the first you should develop two files. <br>
+*First* one: `outputs.tf` for module *ec2* located in *"./modules/ec2"* with following *outputs*: <br>
+`ec2_ami` <br>
+`ec2_public_ip` <br>
+`ec2_type` <br>
+*Second* one: `outputs.tf` for root directory *main.tf*  with following *outputs*: <br>
+`ec2_ami` <br>
+`ec2_public_ip` <br>
+`ec2_type` <br>
+`vpc_id` <br>
+`subnet_id` <br>
+`security_group_ids` <br>
+<br>
+After compleeting previous part you should deploy your infrastructure into AWS using `terraform apply` (all created resources are in FreeTier). <br>
+Next step - run `terraform output > result` (taking into account, that your infrastructure still alive). <br>
+Finally, run `terraform destroy` and upload your `result` file to check <br>
 
 
-# Short overview
 
-This Terraform code defines infrastructure resources for a VPC and EC2 instance <br>
-with a public subnet, an internet gateway, and a security group for the instance.<br>
 
-The provider for the code is AWS, and it takes the region information from a variable defined in a variables.tf file.<br>
-
-The code defines a VPC resource using the aws_vpc block and sets its CIDR block, instance tenancy, and tags. <br>
-It also defines a public subnet using the aws_subnet block, which has a CIDR block, VPC ID, and an availability zone that is set to a variable.<br>
-
-An internet gateway resource is created using the aws_internet_gateway block and is associated with the VPC. <br>
-A public route table is defined with a route for all traffic using the internet gateway, using the aws_route_table block.<br>
-
-A route table association resource is created using the aws_route_table_association block to associate the public subnet with the public route table.<br>
-
-Finally, an EC2 instance resource is created with an AMI, instance type, subnet ID, and a user data script to install and start an HTTP server. <br>
-A security group is defined for the instance with dynamic ingress rules for specified ports and a default egress rule allowing all traffic.<br>
-
-Overall, this Terraform code provisions a VPC with a public subnet, an internet gateway, <br>
-and an EC2 instance with a security group that allows incoming traffic on specified ports.
