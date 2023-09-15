@@ -1,6 +1,0 @@
-instance_image_id = "ubuntu-os-cloud/ubuntu-2204-lts"
-instance_network = "https://www.googleapis.com/compute/v1/projects/ssrv-task1/global/networks/development"
-instance_public_ip = "34.116.141.41"
-instance_subnet = "https://www.googleapis.com/compute/v1/projects/ssrv-task1/regions/europe-central2/subnetworks/development"
-instance_type = "e2-micro"
-instance_zone = "europe-central2-a"
