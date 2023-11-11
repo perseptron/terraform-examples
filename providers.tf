@@ -1,5 +1,5 @@
 terraform {
-requred_version ">= 1.0"
+requred_version = ">= 1.0"
   required_providers {
     google = {
       source  = "hashicorp/google"
