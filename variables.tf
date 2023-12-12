@@ -10,11 +10,11 @@ variable "region" {
   default     = "europe-central2"
 }
 
-variable "zone" {
-  type        = string
-  description = "The availability zone where the instance will be deployed"
-  default     = "europe-central2-a"
-}
+//variable "zone" {
+//  type        = string
+//  description = "The availability zone where the instance will be deployed"
+//  default     = "europe-central2-a"
+//}
 
 variable "service_account_id" {
   type        = string
