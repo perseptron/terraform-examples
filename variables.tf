@@ -1,47 +1,47 @@
-variable "region" {
-  #default region to deploy infrastructure
-  type    = string
-  default = "eu-central-1"
-}
-
-variable "availability_zone" {
+variable "project" {
+  description = "Project name"
   type        = string
-  description = "The availability zone where the infrastructure will be deployed"
-  default     = "eu-central-1a"
+  default     = "project1-407717"
 }
 
-variable "cidr" {
-  default = "10.0.0.0/16"
+variable "region" {
+  description = "default region to deploy infrastructure"
+  type        = string
+  default     = "europe-central2"
 }
 
-variable "publicCIDR" {
-  type    = string
-  default = "10.0.1.0/24"
+variable "zone" {
+  type        = string
+  description = "The availability zone where the instance will be deployed"
+  default     = "europe-central2-a"
 }
 
-variable "environment" {
-  default = "dev"
-}
-variable "instance_type" {
-  #default instance_type to deploy
-  type    = string
-  default = "t2.micro"
+variable "service_account_id" {
+  type        = string
+  description = "Service account id we would use in our instance template config"
+  default     = "a-abcd123ef"
 }
 
-variable "instance_AMI" {
-  #default instance_type to deploy
-  type    = string
-  default = "ami-05d34d340fb1d89e5"
+variable "vpc_network_name" {
+  description = "VPC network name"
+  type        = string
+  default     = "epam-task01-net"
 }
 
-variable "instance_tag" {
-  #default instance_type to deploy
-  type    = string
-  default = "My Amazon Linux Server"
+variable "vpc_subnet_name" {
+  description = "VPC subnet name"
+  type        = string
+  default     = "epam-task01-sub"
 }
 
-variable "allowed_ports" {
-  description = "List of allowed ports"
-  type        = list(any)
-  default     = ["80", "443", "22", "8080"]
+variable "vpc_subnet_CIDR" {
+  description = "VPC subnet CIDR"
+  type        = string
+  default     = "172.16.0.0/16"
+}
+
+variable "backend_bucket_name" {
+  description = "Backend bucket name"
+  type        = string
+  default     = "tfstate-perseptron"
 }

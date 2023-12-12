@@ -1,91 +1,45 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.16"
-    }
-  }
+// uncomment this if bucket is created
+# terraform {
+#   backend "gcs" {
+#     bucket = "tfstate-perseptron"
+#     prefix = "Project1/state"
+#   }
+# }
 
-  required_version = ">= 1.2.0"
+//we need to create this bucket beforehand to keep terraform state file in it
+module "storage" {
+  source = "./modules/storage"
+  backend_bucket_name = var.backend_bucket_name
 }
 
-provider "aws" {
-  region = var.region
+//configuring network, nat, firewall
+module "network" {
+    source = "./modules/network"
+    vpc_name = var.vpc_network_name
+    vpc_subnet_name = var.vpc_subnet_name
+    vpc_subnet_CIDR = var.vpc_subnet_CIDR
 }
 
-data "aws_region" "current" {}
-
-resource "aws_vpc" "test" {
-  cidr_block       = var.cidr
-  instance_tenancy = "default"
-  tags = {
-    Name = "${var.environment}-vpc"
-  }
+//creaing service acc 
+module "iam" {
+  source = "./modules/iam"
+  sa_id = var.service_account_id
 }
 
-resource "aws_subnet" "test" {
-  vpc_id                  = aws_vpc.test.id
-  cidr_block              = var.publicCIDR
-  availability_zone       = var.availability_zone
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.environment}-subnet"
-  }
+//we need this only for example
+module "db" {
+  source = "./modules/db"
 }
 
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.test.id
+//creating MIG
+module "app-runtime-env" {
+  source = "./modules/app-runtime-env"
+
+  // Don't I have to pass a link on that resource instead of name? 
+  // But it works...
+  vpc_network_name = var.vpc_network_name
+  vpc_subnet_name = var.vpc_subnet_name 
+
+  // Here I pass an object from output.tf of iam module
+  template_sa = module.iam.service_account_name
 }
-
-resource "aws_route_table" "route_table" {
-  vpc_id = aws_vpc.test.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-}
-
-resource "aws_route_table_association" "aws_route_table_association" {
-  subnet_id      = aws_subnet.test.id
-  route_table_id = aws_route_table.route_table.id
-}
-
-resource "aws_security_group" "web_ssh" {
-  description = "Allow web & ssh"
-  vpc_id      = aws_vpc.test.id
-  dynamic "ingress" {
-    for_each = var.allowed_ports
-      content {
-        from_port = ingress.value
-        to_port = ingress.value
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-      }
-  }
-   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-}
-
-resource "aws_instance" "app_server" {
-  ami           = var.instance_AMI
-  instance_type = var.instance_type
-  subnet_id     = aws_subnet.test.id
-  vpc_security_group_ids = [aws_security_group.web_ssh.id]
-  tags = {
-    Name = var.instance_tag
-  }
-  user_data = <<EOF
-  #!/bin/bash
-  sudo yum update -y
-  sudo yum install -y httpd
-  sudo service httpd start
-  EOF
-}
-
-
